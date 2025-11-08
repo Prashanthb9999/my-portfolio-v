@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Video Editing Portfolio</title>
+  <style>
+    :root{ --neon-cyan:#00fff0; --neon-pink:#ff4dff; --dark-1:#0b0720; }
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;}
+    header{background:linear-gradient(90deg,rgba(0,0,0,0.9),rgba(0,0,0,0.6));text-align:center;padding:1.8rem 1rem;box-shadow:0 6px 30px rgba(0,0,0,0.6);}
+    h1{margin:0;font-size:1.9rem}
+    section{max-width:1000px;margin:1.5rem auto;padding:0 1rem;}
+    h2{color:var(--neon-cyan);margin-bottom:0.8rem;text-shadow:0 0 8px rgba(0,255,240,0.12);}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
+    .card{background:rgba(255,255,255,0.03);padding:0.6rem;border-radius:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(0,0,0,0.6);position:relative;}
+    .media{width:100%;height:180px;border-radius:8px;object-fit:cover;display:block;}
+    .card video{width:100%;height:100%;display:block;border-radius:8px;}
+    .upload-row{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;}
+    input[type=file]{color:#fff;}
+    .about,.contact{background:rgba(255,255,255,0.03);padding:1.2rem;border-radius:8px;margin-bottom:1.2rem;}
+    .hire-me{text-align:center;margin:1.5rem 0;}
+    .hire-me a{display:inline-block;margin:0.5rem;padding:0.7rem 1.2rem;border-radius:6px;text-decoration:none;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));color:#000;font-weight:bold;}
+    .remove-btn{display:inline-block;margin-top:6px;padding:6px 10px;background:rgba(255,40,80,0.12);color:#fff;border-radius:6px;border:none;cursor:pointer;font-size:13px;}
+    .dropzone{border:2px dashed rgba(255,255,255,0.06);padding:12px;border-radius:10px;transition:box-shadow 0.2s ease,opacity 0.2s ease;}
+    .dropzone.dragover{box-shadow:0 0 30px rgba(0,255,240,0.08);opacity:0.95;}
+    /* reel styles */
+    .reel-section{display:flex;justify-content:center;padding:20px 10px;}
+    .reel-wrapper{width:100%;max-width:360px;aspect-ratio:9/16;position:relative;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 0 20px rgba(0,255,180,0.12);margin:auto;}
+    .reel-wrapper video{width:100%;height:100%;object-fit:cover;display:block;}
+    /* responsive */
+    @media(max-width:900px){section{max-width:720px}}
+    @media(max-width:600px){.reel-wrapper{max-width:320px}.card .media,.card video{height:230px}}
+    @media(max-width:420px){.reel-wrapper{max-width:280px}.card .media,.card video{height:200px}h1{font-size:1.4rem}h2{font-size:1.05rem}}
+    /* navbar */
+    .navbar{display:flex;justify-content:space-between;align-items:center;padding:0.6rem 1rem;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);position:sticky;top:0;z-index:999}
+    .nav-brand{font-weight:700;color:var(--neon-cyan)}
+    .nav-links{list-style:none;display:flex;gap:1rem;margin:0;padding:0}
+    .nav-links a{color:#fff;text-decoration:none;font-weight:500}
+    .nav-toggle{display:none;background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer}
+    @media(max-width:768px){.nav-toggle{display:block}.nav-links{position:fixed;top:0;right:-100%;height:100%;width:260px;background:#0b0720;flex-direction:column;padding-top:4rem;transition:0.3s}.nav-links li{padding:1rem}body.nav-open .nav-links{right:0}}
+  </style>
+</head>
+<body>
+<script>
+(function(){
+  const correctPass = "Prashanthb9999@";
+  const pass = prompt("Enter Portfolio Edit Password:");
+  if(pass !== correctPass){
+    document.body.innerHTML = '<h2 style="text-align:center;margin-top:50px;color:#fff;">Access Denied</h2>';
+    return;
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    function addDeleteButton(el){
+      const btn = document.createElement('button');
+      btn.className = 'remove-btn';
+      btn.innerText = 'Remove';
+      btn.onclick = () => el.remove();
+      el.insertAdjacentElement('afterend', btn);
+      return btn;
+    }
+    function previewFiles(inputSelector, containerSelector, type){
+      const input = document.querySelector(inputSelector);
+      const container = document.querySelector(containerSelector);
+      if(!input || !container) return;
+      input.addEventListener('change', e => {
+        [...e.target.files].forEach(file => {
+          const url = URL.createObjectURL(file);
+          const wrapper = document.createElement('div');
+          wrapper.className = 'card';
+          if(type === 'video'){
+            const vid = document.createElement('video');
+            vid.src = url;
+            vid.controls = true;
+            vid.className = 'media';
+            wrapper.appendChild(vid);
+          } else {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'media';
+            wrapper.appendChild(img);
+          }
+          container.appendChild(wrapper);
+          addDeleteButton(wrapper);
+        });
+        input.value = '';
+      });
+    }
+    function enableDropZone(zoneSelector, inputSelector){
+      const zone = document.querySelector(zoneSelector);
+      const input = document.querySelector(inputSelector);
+      if(!zone || !input) return;
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', () => { zone.classList.remove('dragover'); });
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const dt = new DataTransfer();
+        [...e.dataTransfer.files].forEach(f => dt.items.add(f));
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+      });
+    }
+
+    // profile preview
+    const profileInput = document.getElementById('profilePicUpload');
+    const profileImg = document.getElementById('profilePic');
+    if(profileInput && profileImg){
+      profileInput.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if(file) profileImg.src = URL.createObjectURL(file);
+        profileInput.value = '';
+      });
+    }
+
+    // Attach handlers
+    previewFiles('#youtubeUpload','#youtubeGrid','video');
+    previewFiles('#reelsUpload','#reelsGrid','video');
+    previewFiles('#thumbUpload','#thumbGrid','image');
+
+    enableDropZone('#youtubeDrop','#youtubeUpload');
+    enableDropZone('#reelsDrop','#reelsUpload');
+    enableDropZone('#thumbDrop','#thumbUpload');
+
+    // make reels grid ensure vertical wrappers convert videos to reel-wrapper
+    const reelsGrid = document.getElementById('reelsGrid');
+    if(reelsGrid){
+      // when new video cards are added, convert their video element to vertical reel-wrapper style
+      const observer = new MutationObserver(muts => {
+        muts.forEach(m => {
+          m.addedNodes.forEach(node => {
+            if(node.nodeType===1){
+              const vid = node.querySelector('video');
+              if(vid){
+                // wrap in reel-wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'reel-wrapper';
+                // move video into wrapper and replace node's content
+                wrapper.appendChild(vid);
+                node.innerHTML = '';
+                node.appendChild(wrapper);
+                // ensure controls visible and height responsive
+                vid.style.width='100%';
+                vid.style.height='100%';
+                vid.style.objectFit='cover';
+              }
+            }
+          });
+        });
+      });
+      observer.observe(reelsGrid, {childList:true});
+    }
+  });
+})();
+</script>
+
+<header>
+  <h1>Video Editing Portfolio</h1>
+  <p style="margin:6px 0 0 0">Professional Video Editor & Thumbnail Designer</p>
+</header>
+
+<nav class="navbar">
+  <div class="nav-brand">Portfolio</div>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">☰</button>
+  <ul class="nav-links">
+    <li><a href="#aboutMe">About</a></li>
+    <li><a href="#youtubeGrid">YouTube</a></li>
+    <li><a href="#reelsGrid">Reels</a></li>
+    <li><a href="#thumbGrid">Thumbnails</a></li>
+    <li><a href="#contactEmail">Contact</a></li>
+  </ul>
+</nav>
+
+<div style="text-align:center;margin-top:1rem;">
+  <img id="profilePic" src="PROFILE_PIC_URL" alt="Profile Picture" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--neon-cyan);box-shadow:0 0 15px var(--neon-cyan);" />
+  <div style="margin-top:8px;">
+    <input type="file" accept="image/*" id="profilePicUpload" />
+  </div>
+</div>
+
+<section>
+  <h2>YouTube Edits</h2>
+  <div id="youtubeDrop" class="dropzone upload-row">
+    <input type="file" id="youtubeUpload" accept="video/*" multiple />
+    <span>Drag & drop videos here or click to select</span>
+  </div>
+  <div id="youtubeGrid" class="grid" aria-live="polite"></div>
+</section>
+
+<section>
+  <h2>Reels Showcase</h2>
+  <div id="reelsDrop" class="dropzone upload-row">
+    <input type="file" id="reelsUpload" accept="video/*" multiple />
+    <span>Drag & drop reels here or click to select</span>
+  </div>
+  <div id="reelsGrid" class="grid" aria-live="polite"></div>
+</section>
+
+<section class="about">
+  <h2>About Me</h2>
+  <p contenteditable="true" id="aboutMe">Hi! I am a passionate video editor and thumbnail designer skilled in storytelling, cinematic editing, subtitles, and creative design. I create engaging edits for YouTube, Instagram Reels, advertisements, and short films.</p>
+</section>
+
+<section>
+  <h2>Thumbnails</h2>
+  <div id="thumbDrop" class="dropzone upload-row">
+    <input type="file" id="thumbUpload" accept="image/*" multiple />
+    <span>Drag & drop thumbnails here or click to select</span>
+  </div>
+  <div id="thumbGrid" class="grid" aria-live="polite">
+    <div class="card"><img class="media" src="THUMB_URL_1" alt="thumb"></div>
+    <div class="card"><img class="media" src="THUMB_URL_2" alt="thumb"></div>
+    <div class="card"><img class="media" src="THUMB_URL_3" alt="thumb"></div>
+  </div>
+</section>
+
+<section class="contact">
+  <h2>Contact</h2>
+  <p contenteditable="true" id="contactEmail">Email: youremail@example.com</p>
+  <p contenteditable="true" id="contactPhone">Phone: +91-XXXXXXXXXX</p>
+  <p contenteditable="true" id="contactInsta">Instagram: @yourhandle</p>
+</section>
+
+<section class="hire-me">
+  <a href="https://wa.me/91XXXXXXXXXX" target="_blank">Hire Me on WhatsApp</a>
+  <a href="mailto:youremail@example.com" class="email-btn">Hire Me via Email</a>
+</section>
+
+<section class="download" style="text-align:center;margin-bottom:1rem;">
+  <a href="YOUR_ZIP_LINK_HERE" download style="display:inline-block;margin:0.5rem;padding:0.8rem 1.2rem;border-radius:6px;text-decoration:none;background:linear-gradient(90deg,#00fff0,#ff4dff);color:#000;font-weight:bold;">
+    ⬇ Download My Portfolio
+  </a>
+</section>
+
+<footer>
+  <p style="text-align:center;padding:14px 0 30px 0;margin:0">© 2025 Your Name. All Rights Reserved.</p>
+</footer>
+</body>
+</html>
